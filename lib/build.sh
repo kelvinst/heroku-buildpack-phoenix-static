@@ -78,18 +78,28 @@ install_npm() {
 
 install_and_cache_npm_deps() {
   info "Installing and caching node modules"
+
+  info "[DEBUG] The phoenix dir is $phoenix_dir"
   cd $phoenix_dir
   if [ -d $cache_dir/node_modules ]; then
+    info "[DEBUG] Loading cached dependencies"
     mkdir -p node_modules
     cp -r $cache_dir/node_modules/* node_modules/
   fi
 
+  info "[DEBUG] Pruning"
   npm prune | indent
-  npm install --quiet --unsafe-perm --userconfig $build_dir/npmrc 2>&1 | indent
+  info "[DEBUG] Installing"
+  npm install --unsafe-perm --userconfig $build_dir/npmrc 2>&1 | indent
+  info "[DEBUG] Rebuilding"
   npm rebuild 2>&1 | indent
+  info "[DEBUG] Unsafely pruning"
   npm --unsafe-perm prune 2>&1 | indent
+  info "[DEBUG] Caching"
   cp -r node_modules $cache_dir
+  info "[DEBUG] Adding node_modules/.bin to PATH"
   PATH=$phoenix_dir/node_modules/.bin:$PATH
+  info "[DEBUG] Installing bower dependencies"
   install_bower_deps
 }
 
